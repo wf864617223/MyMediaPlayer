@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
         flVideoList = (FrameLayout) findViewById(R.id.fl_videolist);
         rgVideo = (RadioGroup) findViewById(R.id.rg_myVideo);
         rbLocation = (RadioButton) findViewById(R.id.btn_modelocation);
-        rbLocation = (RadioButton) findViewById(R.id.btn_modelNetWork);
+        rbNetWork = (RadioButton) findViewById(R.id.btn_modelNetWork);
         init();
         if (!io.vov.vitamio.LibsChecker.checkVitamioLibs(this))
             return;
