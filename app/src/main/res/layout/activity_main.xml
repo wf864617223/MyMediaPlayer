@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.rf.hp.mymediaplayer.MainActivity">
+
+    <RadioGroup
+        android:id="@+id/rg_myVideo"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <RadioButton
+            android:id="@+id/btn_modelocation"
+            android:text="本地视频"
+            android:padding="10dp"
+            android:textColor="#FFFFFF"
+            android:button="@null"
+            android:background="@drawable/sele_learn_choose"
+            android:gravity="center"
+            android:drawableTop="@mipmap/infoshare"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="100dp" />
+        <RadioButton
+            android:id="@+id/btn_modelNetWork"
+            android:textColor="#FFFFFF"
+            android:drawableTop="@mipmap/onlinelearn"
+            android:background="@drawable/sele_learn_choose"
+            android:gravity="center"
+            android:padding="10dp"
+            android:text="网络视频"
+            android:button="@null"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="100dp" />
+    </RadioGroup>
+    <FrameLayout
+        android:id="@+id/fl_videolist"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+</LinearLayout>
