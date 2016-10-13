@@ -21,6 +21,8 @@ import com.rf.hp.mymediaplayer.R;
 import com.rf.hp.mymediaplayer.utils.Utils;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 import com.rf.hp.mymediaplayer.bean.VideoItem;
@@ -101,8 +103,8 @@ public class LocationFragment extends Fragment {
             }
             VideoItem videoItem = videoItems.get(position);
             holder.tv_name.setText(videoItem.getTitle());
-            //holder.tv_duration.setText(utils.stringForTime(Integer.valueOf(videoItem.getDuration())));
-            //holder.tv_size.setText(Formatter.formatFileSize(getContext(), videoItem.getSize()));
+            holder.tv_duration.setText(utils.stringForTime(Integer.valueOf(videoItem.getDuration())));
+            holder.tv_size.setText(Formatter.formatFileSize(getContext(), videoItem.getSize()));
 
             return view;
         }
@@ -121,23 +123,33 @@ public class LocationFragment extends Fragment {
     private void getAllVideo(final File roots) {
         new Thread(){
             public void run(){
-                final File[] file = roots.listFiles();
-                for (int i = 0;(file != null) && (i < file.length); i++) {
-                    if(file[i].isDirectory()){
-                        //final File[] tempFileList = new File().listFiles();
-                        getAllVideo(file[i]);
-                    }else if(file[i].isFile() && FileUtils.isVideo(file[i])){
-                        VideoItem item = new VideoItem();
-                        String size = MediaStore.Video.Media.SIZE;
-                        item.setSize(123454657);
-                        item.setData("54321");
-                        item.setDuration("12345");
-                        item.setTitle(file[i].getName());
-                        videoItems.add(item);
-                    }
-                }
-                handler.sendEmptyMessage(0);
+                seeAllVideos(roots);
             }
         }.start();
+    }
+
+    private void seeAllVideos(final File roots) {
+        final File[] file = roots.listFiles();
+        for (int i = 0;(file != null) && (i < file.length); i++) {
+            if(file[i].isDirectory()){
+                //final File[] tempFileList = new File().listFiles();
+                seeAllVideos(file[i]);
+            }else if(file[i].isFile() && FileUtils.isVideo(file[i])){
+                VideoItem item = new VideoItem();
+                int size = 0;
+                item.setData("54321");
+                item.setDuration("12345");
+                item.setTitle(file[i].getName());
+                try {
+                    FileInputStream fileInputStream = new FileInputStream(file[i]);
+                    size = fileInputStream.available(); //这就是文件大小
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                item.setSize(size);
+                videoItems.add(item);
+            }
+        }
+        handler.sendEmptyMessage(0);
     }
 }

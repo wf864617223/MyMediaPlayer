@@ -44,26 +44,26 @@ public class NetWorkFrgment extends Fragment {
                     case 0:
                         Log.i("TAG","aiqiyi");
                         //Toast.makeText(context, "aiqiyi", Toast.LENGTH_SHORT).show();
-                        intent.putExtra("uri","http://www..com");
+                        intent.putExtra("uri","http://www.iqiyi.com/");
                         break;
                     case 1:
                        // Toast.makeText(context, "leshi", Toast.LENGTH_SHORT).show();
-                        intent.putExtra("uri","http://www..com");
+                        intent.putExtra("uri","http://www.le.com");
                         break;
                     case 2:
-                        intent.putExtra("uri","http://www..com");
+                        intent.putExtra("uri","http://www.pptv.com");
                         break;
                     case 3:
-                        intent.putExtra("uri","http://www..com");
+                        intent.putExtra("uri","http://v.qq.com");
                         break;
                     case 4:
-                        intent.putExtra("uri","http://www..com");
+                        intent.putExtra("uri","http://video.sina.com.cn/");
                         break;
                     case 5:
-                        intent.putExtra("uri","http://www..com");
+                        intent.putExtra("uri","http://tv.sohu.com/");
                         break;
                     case 6:
-                        intent.putExtra("uri","http://www..com");
+                        intent.putExtra("uri","http://www.tudou.com");
                         break;
                     case 7:
                         intent.putExtra("uri","http://www.youku.com");

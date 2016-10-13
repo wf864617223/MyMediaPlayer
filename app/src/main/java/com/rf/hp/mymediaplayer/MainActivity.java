@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
         rgVideo = (RadioGroup) findViewById(R.id.rg_myVideo);
         rbLocation = (RadioButton) findViewById(R.id.btn_modelocation);
         rbNetWork = (RadioButton) findViewById(R.id.btn_modelNetWork);
+        mkAppDirs();
         init();
         if (!io.vov.vitamio.LibsChecker.checkVitamioLibs(this))
             return;
@@ -49,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     private void init() {
+
         transaction = getSupportFragmentManager().beginTransaction().
                 setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out);
         locationFragment = new LocationFragment();
@@ -60,8 +62,8 @@ public class MainActivity extends AppCompatActivity {
         transaction.hide(netWorkFrgment);
         rbLocation.setChecked(true);
         if(rbLocation.isChecked()){
-            transaction = getSupportFragmentManager().beginTransaction()
-                    .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out);
+            transaction = getSupportFragmentManager().beginTransaction();
+            //.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
             transaction.show(locationFragment);
             transaction.hide(netWorkFrgment);
             transaction.commit();
@@ -73,15 +75,17 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.btn_modelocation:
                         transaction = getSupportFragmentManager().beginTransaction().
                                 setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out);
-                        transaction.show(locationFragment);
                         transaction.hide(netWorkFrgment);
+                        transaction.show(locationFragment);
+
                         transaction.commit();
                         break;
                     case R.id.btn_modelNetWork:
                         transaction = getSupportFragmentManager().beginTransaction().
                                 setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out);
-                        transaction.show(netWorkFrgment);
                         transaction.hide(locationFragment);
+                        transaction.show(netWorkFrgment);
+
                         transaction.commit();
                         break;
                 }
