@@ -4,6 +4,7 @@ package com.rf.hp.mymediaplayer.fragment;
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -17,6 +18,7 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.rf.hp.mymediaplayer.Asunc.ScanAsyncTask;
 import com.rf.hp.mymediaplayer.R;
 import com.rf.hp.mymediaplayer.utils.Utils;
 
@@ -24,6 +26,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import com.rf.hp.mymediaplayer.bean.VideoItem;
 
@@ -38,7 +42,7 @@ public class LocationFragment extends Fragment {
     private ListView lvVideo;
     private TextView tvNoVideo;
     private Utils utils;
-    private ArrayList<VideoItem> videoItems = new ArrayList<>();
+    private List<VideoItem> videoItems = new ArrayList<>();
 
     private Handler handler = new Handler(){
         public void handleMessage(android.os.Message msg){
@@ -64,7 +68,7 @@ public class LocationFragment extends Fragment {
 
     private void init() {
         utils = new Utils();
-        findAllVideo();
+        getAllVideo();
     }
 
     private class VideoListAdapter extends BaseAdapter{
@@ -114,27 +118,33 @@ public class LocationFragment extends Fragment {
         TextView tv_duration;
         TextView tv_size;
     }
-    public void findAllVideo() {
-        path = Environment.getExternalStorageDirectory();
-        getAllVideo(path);
-
-    }
-
-    private void getAllVideo(final File roots) {
-        new Thread(){
+    private void getAllVideo() {
+        /*new Thread(){
             public void run(){
-                seeAllVideos(roots);
+                path = Environment.getExternalStorageDirectory();
+                seeAllVideos(path);
+                handler.sendEmptyMessage(0);
             }
-        }.start();
+        }.start();*/
+        ScanAsyncTask ansyTask=new ScanAsyncTask();
+        AsyncTask<Void, Integer, List<VideoItem>> execute = ansyTask.execute();
+        try {
+            videoItems = execute.get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        handler.sendEmptyMessage(0);
     }
 
-    private void seeAllVideos(final File roots) {
-        final File[] file = roots.listFiles();
+    private void seeAllVideos(final File dir) {
+        final File[] file = dir.listFiles();
         for (int i = 0;(file != null) && (i < file.length); i++) {
-            if(file[i].isDirectory()){
+            /*if(file[i].isDirectory()){
                 //final File[] tempFileList = new File().listFiles();
                 seeAllVideos(file[i]);
-            }else if(file[i].isFile() && FileUtils.isVideo(file[i])){
+            }else*/ if(file[i].isFile() && FileUtils.isVideo(file[i])){
                 VideoItem item = new VideoItem();
                 int size = 0;
                 item.setData("54321");
@@ -150,6 +160,7 @@ public class LocationFragment extends Fragment {
                 videoItems.add(item);
             }
         }
-        handler.sendEmptyMessage(0);
+        //
+
     }
 }

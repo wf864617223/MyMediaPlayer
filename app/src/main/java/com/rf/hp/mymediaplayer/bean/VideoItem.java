@@ -16,6 +16,8 @@ public class VideoItem implements Serializable{
 	private long size;
 	
 	private String data;
+	private String displayName;
+	private String path;
 
 	public String getTitle() {
 		return title;
@@ -54,6 +56,17 @@ public class VideoItem implements Serializable{
 		return "VideoItem [title=" + title + ", duration=" + duration
 				+ ", size=" + size + ", data=" + data + "]";
 	}
-	
-	
+
+
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
+	}
+
+	public String getPath() {
+		return path;
+	}
 }
