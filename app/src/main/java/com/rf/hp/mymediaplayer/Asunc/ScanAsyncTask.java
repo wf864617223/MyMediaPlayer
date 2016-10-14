@@ -8,6 +8,9 @@ import com.rf.hp.mymediaplayer.bean.VideoItem;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -88,8 +91,22 @@ public class ScanAsyncTask extends AsyncTask <Void,Integer,List<VideoItem>>{
                         file.getUsableSpace();
                         video.setTitle(file.getName());
                         video.setPath(file.getAbsolutePath());
-                        video.setDuration("654321");
-                        video.setSize(123456);
+                        String res = "";
+                        int size = 0;
+                        long lastModified = 0;
+                        FileInputStream fileInputStream = null;
+                        try {
+                            fileInputStream = new FileInputStream(file);
+                            size = fileInputStream.available(); //这就是文件大小
+                            //res = EncodingUtils.getString(buffer, "UTF-8");
+                            lastModified = file.lastModified();
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        video.setDuration(lastModified+"");
+                        video.setSize(size);
                         Log.i("tga","name"+video.getPath());
                         list.add(video);
 

@@ -30,6 +30,12 @@ public class Utils {
 			return mformatter.format("%02d:%02d",minutes,seconds).toString();
 		}
 	}
+	public String longForDate(long time){
+		SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Date date = new Date(time);
+		String format = sdf.format(date);
+		return format;
+	}
 	
 	public String getSystemTime(){
 		SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");

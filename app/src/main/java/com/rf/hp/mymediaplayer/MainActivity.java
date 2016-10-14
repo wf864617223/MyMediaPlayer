@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.widget.FrameLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -25,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
     private LocationFragment locationFragment;
     private NetWorkFrgment netWorkFrgment;
     private FragmentTransaction transaction;
+    private long exitTime = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,6 +40,19 @@ public class MainActivity extends AppCompatActivity {
         init();
         if (!io.vov.vitamio.LibsChecker.checkVitamioLibs(this))
             return;
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(keyCode == KeyEvent.KEYCODE_BACK&&event.getAction() == KeyEvent.ACTION_DOWN){
+            if(System.currentTimeMillis() - exitTime >2000){
+                Toast.makeText(MainActivity.this, "再按一次退出", Toast.LENGTH_SHORT).show();
+                exitTime =  System.currentTimeMillis();
+            }
+        }else{
+            System.exit(0);
+        }
+        return true;
     }
 
     private void mkAppDirs() {
@@ -85,7 +100,6 @@ public class MainActivity extends AppCompatActivity {
                                 setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out);
                         transaction.hide(locationFragment);
                         transaction.show(netWorkFrgment);
-
                         transaction.commit();
                         break;
                 }

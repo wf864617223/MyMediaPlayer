@@ -14,9 +14,11 @@ import android.text.format.Formatter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.rf.hp.mymediaplayer.Asunc.ScanAsyncTask;
 import com.rf.hp.mymediaplayer.R;
@@ -69,6 +71,13 @@ public class LocationFragment extends Fragment {
     private void init() {
         utils = new Utils();
         getAllVideo();
+        lvVideo.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                String path = videoItems.get(i).getPath();
+                Toast.makeText(getContext(), path, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private class VideoListAdapter extends BaseAdapter{
@@ -107,7 +116,9 @@ public class LocationFragment extends Fragment {
             }
             VideoItem videoItem = videoItems.get(position);
             holder.tv_name.setText(videoItem.getTitle());
-            holder.tv_duration.setText(utils.stringForTime(Integer.valueOf(videoItem.getDuration())));
+            //holder.tv_duration.setText(utils.stringForTime(Integer.valueOf(videoItem.getDuration())));
+            Long aLong = Long.parseLong(videoItem.getDuration());
+            holder.tv_duration.setText(utils.longForDate(aLong));
             holder.tv_size.setText(Formatter.formatFileSize(getContext(), videoItem.getSize()));
 
             return view;
