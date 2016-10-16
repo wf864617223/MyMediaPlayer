@@ -48,9 +48,9 @@ public class MainActivity extends AppCompatActivity {
             if(System.currentTimeMillis() - exitTime >2000){
                 Toast.makeText(MainActivity.this, "再按一次退出", Toast.LENGTH_SHORT).show();
                 exitTime =  System.currentTimeMillis();
+            }else{
+                finish();
             }
-        }else{
-            System.exit(0);
         }
         return true;
     }

@@ -2,6 +2,7 @@ package com.rf.hp.mymediaplayer.fragment;
 
 
 import android.content.ContentResolver;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -22,6 +23,7 @@ import android.widget.Toast;
 
 import com.rf.hp.mymediaplayer.Asunc.ScanAsyncTask;
 import com.rf.hp.mymediaplayer.R;
+import com.rf.hp.mymediaplayer.VideoPlayActivity;
 import com.rf.hp.mymediaplayer.utils.Utils;
 
 import java.io.File;
@@ -75,7 +77,10 @@ public class LocationFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 String path = videoItems.get(i).getPath();
-                Toast.makeText(getContext(), path, Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getContext(), VideoPlayActivity.class);
+                intent.putExtra("path",path);
+                startActivity(intent);
+                //Toast.makeText(getContext(), path, Toast.LENGTH_SHORT).show();
             }
         });
     }
