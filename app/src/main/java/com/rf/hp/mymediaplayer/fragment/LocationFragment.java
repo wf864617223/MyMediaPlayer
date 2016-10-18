@@ -4,6 +4,8 @@ package com.rf.hp.mymediaplayer.fragment;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -17,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,6 +32,7 @@ import com.rf.hp.mymediaplayer.utils.Utils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -114,7 +118,7 @@ public class LocationFragment extends Fragment {
                 holder = new ViewHolder();
                 holder.tv_name = (TextView) view.findViewById(R.id.tv_name);
                 holder.tv_duration = (TextView) view.findViewById(R.id.tv_duration);
-
+                holder.iv_icon = (ImageView) view.findViewById(R.id.iv_icon);
                 holder.tv_size = (TextView) view.findViewById(R.id.tv_size);
 
                 view.setTag(holder);
@@ -123,6 +127,18 @@ public class LocationFragment extends Fragment {
             holder.tv_name.setText(videoItem.getTitle());
             //holder.tv_duration.setText(utils.stringForTime(Integer.valueOf(videoItem.getDuration())));
             Long aLong = Long.parseLong(videoItem.getDuration());
+            String path = videoItem.getPath();
+            //mediaretriever
+            MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
+            try {
+                mediaMetadataRetriever.setDataSource(path);
+                Bitmap frameAtTime = mediaMetadataRetriever.getFrameAtTime(4000);
+                holder.iv_icon.setImageBitmap(frameAtTime);
+            } catch (Exception e) {
+                e.printStackTrace();
+                holder.iv_icon.setImageResource(R.drawable.icon);
+            }
+
             holder.tv_duration.setText(utils.longForDate(aLong));
             holder.tv_size.setText(Formatter.formatFileSize(getContext(), videoItem.getSize()));
 
@@ -130,6 +146,7 @@ public class LocationFragment extends Fragment {
         }
     }
     static class ViewHolder{
+        ImageView iv_icon;
         TextView tv_name;
         TextView tv_duration;
         TextView tv_size;
