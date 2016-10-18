@@ -159,7 +159,7 @@ public class LocationFragment extends Fragment {
                 handler.sendEmptyMessage(0);
             }
         }.start();*/
-        ScanAsyncTask ansyTask=new ScanAsyncTask();
+        ScanAsyncTask ansyTask = new ScanAsyncTask();
         AsyncTask<Void, Integer, List<VideoItem>> execute = ansyTask.execute();
         try {
             videoItems = execute.get();

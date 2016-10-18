@@ -104,6 +104,7 @@ public class NetWorkFrgment extends Fragment {
                 viewHolder = new ViewHolder();
                 viewHolder.ivNet = (ImageView) convertView.findViewById(R.id.lv_net);
                 viewHolder.tvNetName = (TextView) convertView.findViewById(R.id.tv_netName);
+                convertView.setTag(viewHolder);
             }
             viewHolder.ivNet.setImageResource(piclist[position]);
             viewHolder.tvNetName.setText(nameList[position]);
