@@ -8,6 +8,7 @@
 
     <RadioGroup
         android:id="@+id/rg_myVideo"
+        android:visibility="gone"
         android:orientation="horizontal"
         android:gravity="center"
         android:layout_width="match_parent"
