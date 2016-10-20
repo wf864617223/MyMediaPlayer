@@ -10,6 +10,7 @@ import android.os.Message;
 import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -25,6 +26,7 @@ import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.rf.hp.mymediaplayer.reacver.MyBroadcastReceiver;
+import com.rf.hp.mymediaplayer.utils.Utils;
 
 import io.vov.vitamio.MediaPlayer;
 import io.vov.vitamio.widget.MediaController;
@@ -70,15 +72,32 @@ public class VideoPlayActivity extends AppCompatActivity {
     private static final int HIDEPROGRESSCTRL = 2;
     private BroadcastReceiver receiver;
     private int level;
+    private Utils utils;
     Context context;
+    MediaPlayer mp;
 
     private Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what){
                 case PROGRESS:
+                    long currentPosition = vvPlay.getCurrentPosition();
+                    int duration = (int) vvPlay.getDuration();
+                    //tvAllTime.setText(utils.stringForTime(duration));
+                    Log.i("VideoPlay","==currentPosition==>"+currentPosition);
+                    System.out.println("==currentPosition==>"+currentPosition);
+                    tvNowTime.setText(utils.stringForTime(duration));
+                    sbVideo.setProgress(duration);
+                    tvSysTime.setText(utils.getSystemTime());
+                    if(!isDestroyed){
+                        handler.removeMessages(PROGRESS);
+                        handler.sendEmptyMessageDelayed(PROGRESS,1000);
+                    }
                     break;
                 case HIDEPROGRESSCTRL:
+                    hideCtrl();
+                    break;
+                default:
                     break;
             }
         }
@@ -92,6 +111,7 @@ public class VideoPlayActivity extends AppCompatActivity {
         setContentView(R.layout.activity_video_play);
         context = VideoPlayActivity.this;
         getSupportActionBar().hide();
+        mp = new MediaPlayer(context);
         initView();
         Intent intent = getIntent();
         path = intent.getStringExtra("path");
@@ -140,6 +160,13 @@ public class VideoPlayActivity extends AppCompatActivity {
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
                 //Toast.makeText(VideoPlayActivity.this, "onSingleTapConfirmed", Toast.LENGTH_SHORT).show();
+                if(isShowControl){
+                    removeDelayedHideCtrlPlayer();
+                    hideCtrl();
+                }else{
+                    sendDelayedHideCtrlPlayer();
+                    showCtrl();
+                }
                 return super.onSingleTapConfirmed(e);
             }
 
@@ -154,18 +181,19 @@ public class VideoPlayActivity extends AppCompatActivity {
     private void initView() {
         vvPlay = (VideoView) findViewById(R.id.vv_play);
         ll_loading = (LinearLayout) findViewById(R.id.ll_loading);
-        btnPlay = (Button) findViewById(R.id.btn_play_pause);
-        btnPre = (Button) findViewById(R.id.btn_play_pre);
-        btnNext = (Button) findViewById(R.id.btn_play_next);
-        tvNowTime = (TextView) findViewById(R.id.tv_now_time);
-        tvAllTime = (TextView) findViewById(R.id.tv_alltime);
-        sbVoice = (SeekBar) findViewById(R.id.sb_voice);
-        sbVideo = (SeekBar) findViewById(R.id.sb_video);
-        tvvideoTitle = (TextView) findViewById(R.id.tv_video_title);
-        tvSysTime = (TextView) findViewById(R.id.tv_sysTime);
-        ivBattery = (ImageView) findViewById(R.id.iv_battery);
+        View ivLayout = findViewById(R.id.ic_layout);
+        btnPlay = (Button) ivLayout.findViewById(R.id.btn_play_pause);
+        btnPre = (Button) ivLayout.findViewById(R.id.btn_play_pre);
+        btnNext = (Button) ivLayout.findViewById(R.id.btn_play_next);
+        tvNowTime = (TextView) ivLayout.findViewById(R.id.tv_now_time);
+        tvAllTime = (TextView) ivLayout.findViewById(R.id.tv_alltime);
+        sbVoice = (SeekBar) ivLayout.findViewById(R.id.sb_voice);
+        sbVideo = (SeekBar) ivLayout.findViewById(R.id.sb_video);
+        tvvideoTitle = (TextView) ivLayout.findViewById(R.id.tv_video_title);
+        tvSysTime = (TextView) ivLayout.findViewById(R.id.tv_sysTime);
+        ivBattery = (ImageView) ivLayout.findViewById(R.id.iv_battery);
         llCtrlPlayer = (LinearLayout) findViewById(R.id.ll_ctrl_player);
-        llCtrlPlayer.setVisibility(View.GONE);
+
     }
 
     private void playSetting() {
@@ -173,13 +201,17 @@ public class VideoPlayActivity extends AppCompatActivity {
             @Override
             public void onPrepared(MediaPlayer mp) {
                 ll_loading.setVisibility(View.GONE);
+
+                //sbVideo.setMax(duration);
+                hideCtrl();
+                handler.sendEmptyMessage(PROGRESS);
             }
         });
     }
 
     private void startSDplay() {
         vvPlay.setVideoURI(data);
-        vvPlay.setMediaController(new MediaController(this));
+        //vvPlay.setMediaController(new MediaController(this));
         vvPlay.setVideoLayout(VideoView.VIDEO_LAYOUT_STRETCH, 0);
         vvPlay.requestFocus();
     }
@@ -192,7 +224,7 @@ public class VideoPlayActivity extends AppCompatActivity {
     private void startPlay() {
         vvPlay.setVideoPath(path);
         vvPlay.setVideoURI(Uri.parse(path));
-        vvPlay.setMediaController(new MediaController(this));
+        //vvPlay.setMediaController(new MediaController(this));
         vvPlay.setVideoLayout(VideoView.VIDEO_LAYOUT_STRETCH, 0);
         vvPlay.requestFocus();
     }
@@ -205,6 +237,20 @@ public class VideoPlayActivity extends AppCompatActivity {
 
     }
 
+    private void removeDelayedHideCtrlPlayer(){
+        handler.removeMessages(HIDEPROGRESSCTRL);
+    }
+    private void hideCtrl(){
+        llCtrlPlayer.setVisibility(View.GONE);
+        isShowControl = false;
+    }
+    private boolean sendDelayedHideCtrlPlayer(){
+        return handler.sendEmptyMessageDelayed(HIDEPROGRESSCTRL,2000);
+    }
+    private void showCtrl(){
+        llCtrlPlayer.setVisibility(View.VISIBLE);
+        isShowControl = true;
+    }
     @Override
     public void onStart() {
         super.onStart();
@@ -215,5 +261,13 @@ public class VideoPlayActivity extends AppCompatActivity {
     @Override
     public void onStop() {
         super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        isDestroyed = true;
+        unregisterReceiver(receiver);
+        receiver = null;
     }
 }
