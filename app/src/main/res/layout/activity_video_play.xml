@@ -17,7 +17,7 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <include layout="@layout/video_play_corl"/>
+        <include android:id="@+id/ic_layout" layout="@layout/video_play_corl"/>
     </LinearLayout>
     <LinearLayout
         android:id="@+id/ll_loading"
