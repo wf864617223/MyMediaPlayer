@@ -50,7 +50,7 @@ public class LocationFragment extends Fragment {
     private ListView lvVideo;
     private TextView tvNoVideo;
     private Utils utils;
-    private List<VideoItem> videoItems = new ArrayList<>();
+    private ArrayList<VideoItem> videoItems = new ArrayList<>();
 
     private Handler handler = new Handler(){
         public void handleMessage(android.os.Message msg){
@@ -82,7 +82,12 @@ public class LocationFragment extends Fragment {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 String path = videoItems.get(i).getPath();
                 Intent intent = new Intent(getContext(), VideoPlayActivity.class);
-                intent.putExtra("path",path);
+                //intent.putExtra("path",path);
+                Bundle extras = new Bundle();
+                extras.putSerializable("videolist", videoItems);
+                extras.putString("path",path);
+                extras.putInt("position",i);
+                intent.putExtras(extras);
                 startActivity(intent);
                 //Toast.makeText(getContext(), path, Toast.LENGTH_SHORT).show();
             }
@@ -160,7 +165,7 @@ public class LocationFragment extends Fragment {
             }
         }.start();*/
         ScanAsyncTask ansyTask = new ScanAsyncTask();
-        AsyncTask<Void, Integer, List<VideoItem>> execute = ansyTask.execute();
+        AsyncTask<Void, Integer, ArrayList<VideoItem>> execute = ansyTask.execute();
         try {
             videoItems = execute.get();
         } catch (InterruptedException e) {

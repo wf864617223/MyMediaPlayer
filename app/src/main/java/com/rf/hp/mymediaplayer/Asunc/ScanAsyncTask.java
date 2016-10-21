@@ -19,13 +19,13 @@ import io.vov.vitamio.utils.FileUtils;
 /**
  * Created by hp on 2016/10/11.
  */
-public class ScanAsyncTask extends AsyncTask <Void,Integer,List<VideoItem>>{
-    private List<VideoItem> videoInfos=new ArrayList<VideoItem>();
+public class ScanAsyncTask extends AsyncTask <Void,Integer,ArrayList<VideoItem>>{
+    private ArrayList<VideoItem> videoInfos=new ArrayList<VideoItem>();
 
 
 
     @Override
-    protected List<VideoItem> doInBackground(Void... params) {
+    protected ArrayList<VideoItem> doInBackground(Void... params) {
         videoInfos=getVideoFile(videoInfos, Environment.getExternalStorageDirectory());
         videoInfos=filterVideo(videoInfos);
         Log.i("tga","最后的大小"+videoInfos.size());
@@ -39,7 +39,7 @@ public class ScanAsyncTask extends AsyncTask <Void,Integer,List<VideoItem>>{
     }
 
     @Override
-    protected void onPostExecute(List<VideoItem> videoInfos) {
+    protected void onPostExecute(ArrayList<VideoItem> videoInfos) {
         super.onPostExecute(videoInfos);
     }
 
@@ -49,7 +49,7 @@ public class ScanAsyncTask extends AsyncTask <Void,Integer,List<VideoItem>>{
      * @param file
      * @return
      */
-    private List<VideoItem> getVideoFile(final List<VideoItem> list, File file) {
+    private ArrayList<VideoItem> getVideoFile(final ArrayList<VideoItem> list, File file) {
 
         file.listFiles(new FileFilter() {
 
@@ -128,8 +128,8 @@ public class ScanAsyncTask extends AsyncTask <Void,Integer,List<VideoItem>>{
      * @param videoInfos
      * @return
      */
-    private List<VideoItem> filterVideo(List<VideoItem> videoInfos){
-        List<VideoItem> newVideos=new ArrayList<VideoItem>();
+    private ArrayList<VideoItem> filterVideo(ArrayList<VideoItem> videoInfos){
+        ArrayList<VideoItem> newVideos=new ArrayList<VideoItem>();
         for(VideoItem videoInfo:videoInfos){
             File f=new File(videoInfo.getPath());
             if(f.exists()&&f.isFile()&&f.length()>10485760){

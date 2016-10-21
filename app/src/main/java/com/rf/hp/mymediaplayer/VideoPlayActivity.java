@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
@@ -22,14 +23,14 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.rf.hp.mymediaplayer.reacver.MyBroadcastReceiver;
+
+import com.rf.hp.mymediaplayer.bean.VideoItem;
 import com.rf.hp.mymediaplayer.utils.Utils;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+
 import io.vov.vitamio.MediaPlayer;
-import io.vov.vitamio.widget.MediaController;
 import io.vov.vitamio.widget.VideoView;
 
 public class VideoPlayActivity extends AppCompatActivity {
@@ -49,6 +50,7 @@ public class VideoPlayActivity extends AppCompatActivity {
     private TextView tvSysTime;
     private ImageView ivBattery;
     private LinearLayout llCtrlPlayer;
+    private Button btnVoice;
 
     private GestureDetector detector;
 
@@ -62,8 +64,6 @@ public class VideoPlayActivity extends AppCompatActivity {
     private WindowManager wm;
     //当前音量
     private int currentVolume;
-    //最大音量
-    private int maxVolume;
     //是否静音
     private boolean isMute = false;
     //
@@ -71,24 +71,26 @@ public class VideoPlayActivity extends AppCompatActivity {
     //
     private static final int HIDEPROGRESSCTRL = 2;
     private BroadcastReceiver receiver;
+    private boolean isPlaying = false;
     private int level;
     private Utils utils;
     Context context;
-    MediaPlayer mp;
+    private AudioManager am;
+    private ArrayList<VideoItem> videoItems = new ArrayList<>();
 
     private Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what){
                 case PROGRESS:
-                    long currentPosition = vvPlay.getCurrentPosition();
-                    int duration = (int) vvPlay.getDuration();
-                    //tvAllTime.setText(utils.stringForTime(duration));
+                    int currentPosition = (int)vvPlay.getCurrentPosition();;
+                    //tvAllTime.setText(utils.stringForTime(currentPosition));
                     Log.i("VideoPlay","==currentPosition==>"+currentPosition);
                     System.out.println("==currentPosition==>"+currentPosition);
-                    tvNowTime.setText(utils.stringForTime(duration));
-                    sbVideo.setProgress(duration);
+                    tvNowTime.setText(utils.stringForTime(currentPosition));
+                    sbVideo.setProgress(currentPosition);
                     tvSysTime.setText(utils.getSystemTime());
+                    setBattey();
                     if(!isDestroyed){
                         handler.removeMessages(PROGRESS);
                         handler.sendEmptyMessageDelayed(PROGRESS,1000);
@@ -102,6 +104,8 @@ public class VideoPlayActivity extends AppCompatActivity {
             }
         }
     };
+    private int position;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -111,18 +115,107 @@ public class VideoPlayActivity extends AppCompatActivity {
         setContentView(R.layout.activity_video_play);
         context = VideoPlayActivity.this;
         getSupportActionBar().hide();
-        mp = new MediaPlayer(context);
         initView();
-        Intent intent = getIntent();
-        path = intent.getStringExtra("path");
+        getData();
+        playSetting();
+        initData();
+        setListener();
+    }
+
+    private void getData() {
+        Bundle bundle = getIntent().getExtras();
+        path = bundle.getString("path");
+        videoItems = (ArrayList<VideoItem>) bundle.getSerializable("videolist");
+        position = bundle.getInt("position", 0);
         data = getIntent().getData();
         if (path == null) {
             startSDplay();
         } else {
             startPlay();
         }
-        playSetting();
-        initData();
+    }
+
+    private void setListener() {
+        btnPlay.setOnClickListener(mOnClickListener);
+        btnPre.setOnClickListener(mOnClickListener);
+        btnNext.setOnClickListener(mOnClickListener);
+        btnVoice.setOnClickListener(mOnClickListener);
+        vvPlay.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+
+            }
+        });
+        vvPlay.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+            @Override
+            public boolean onError(MediaPlayer mp, int what, int extra) {
+                Toast.makeText(VideoPlayActivity.this, "该视频可能已经损害，无法播放！", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        });
+    }
+
+    View.OnClickListener mOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            removeDelayedHideCtrlPlayer();
+            sendDelayedHideCtrlPlayer();
+            switch (view.getId()){
+                case R.id.btn_play_pause:
+                    startOrPause();
+                    break;
+                case R.id.btn_play_pre:
+                    playPreVideo();
+                    break;
+                case R.id.btn_play_next:
+                    playNextVideo();
+                    break;
+                case R.id.btn_voice:
+                    updateVolume(currentVolume);
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
+
+    private void playNextVideo() {
+
+        if(videoItems!=null||videoItems.size()>0){
+            position++;
+            if(position<videoItems.size()){
+                path = videoItems.get(position).getPath();
+                startPlay();
+            }else {
+                position = videoItems.size()-1;
+                Toast.makeText(VideoPlayActivity.this, "这是最后一个视频", Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        }
+    }
+
+    private void playPreVideo() {
+        if(videoItems!=null||videoItems.size()>0){
+            position--;
+            if(position>=0){
+                path =  videoItems.get(position).getPath();
+                startPlay();
+            }else{
+                position = 0;
+                Toast.makeText(VideoPlayActivity.this, "这是第一个视频", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void updateVolume(int volume) {
+        isMute = !isMute;
+        if(isMute){
+            am.setStreamVolume(AudioManager.STREAM_MUSIC,0,0);
+        }else{
+            am.setStreamVolume(AudioManager.STREAM_MUSIC,volume,0);
+            sbVoice.setProgress(volume);
+        }
+        currentVolume = volume;
     }
 
     private void initData() {
@@ -135,7 +228,7 @@ public class VideoPlayActivity extends AppCompatActivity {
         screenHeight = wm.getDefaultDisplay().getHeight();
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Intent.ACTION_BATTERY_CHANGED);
-        receiver = new MyBroadcastReceiver(level);
+        receiver = new MyBroadcastReceiver();
         registerReceiver(receiver,intentFilter);
         detector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener(){
             @Override
@@ -176,44 +269,88 @@ public class VideoPlayActivity extends AppCompatActivity {
                 return super.onScroll(e1, e2, distanceX, distanceY);
             }
         });
+        am = (AudioManager) getSystemService(AUDIO_SERVICE);
+        currentVolume = am.getStreamVolume(AudioManager.STREAM_MUSIC);
     }
 
+    private class MyBroadcastReceiver extends BroadcastReceiver{
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            level = intent.getIntExtra("level", 0);
+        }
+
+    }
+
+    /**
+     * 初始化ID
+     */
     private void initView() {
         vvPlay = (VideoView) findViewById(R.id.vv_play);
         ll_loading = (LinearLayout) findViewById(R.id.ll_loading);
         View ivLayout = findViewById(R.id.ic_layout);
-        btnPlay = (Button) ivLayout.findViewById(R.id.btn_play_pause);
-        btnPre = (Button) ivLayout.findViewById(R.id.btn_play_pre);
-        btnNext = (Button) ivLayout.findViewById(R.id.btn_play_next);
-        tvNowTime = (TextView) ivLayout.findViewById(R.id.tv_now_time);
-        tvAllTime = (TextView) ivLayout.findViewById(R.id.tv_alltime);
-        sbVoice = (SeekBar) ivLayout.findViewById(R.id.sb_voice);
-        sbVideo = (SeekBar) ivLayout.findViewById(R.id.sb_video);
-        tvvideoTitle = (TextView) ivLayout.findViewById(R.id.tv_video_title);
-        tvSysTime = (TextView) ivLayout.findViewById(R.id.tv_sysTime);
-        ivBattery = (ImageView) ivLayout.findViewById(R.id.iv_battery);
+        btnPlay = (Button) findViewById(R.id.btn_play_pause);
+        btnPre = (Button) findViewById(R.id.btn_play_pre);
+        btnNext = (Button) findViewById(R.id.btn_play_next);
+        tvNowTime = (TextView) findViewById(R.id.tv_now_time);
+        tvAllTime = (TextView) findViewById(R.id.tv_alltime);
+        sbVoice = (SeekBar) findViewById(R.id.sb_voice);
+        sbVideo = (SeekBar) findViewById(R.id.sb_video);
+        tvvideoTitle = (TextView) findViewById(R.id.tv_video_title);
+        tvSysTime = (TextView) findViewById(R.id.tv_sysTime);
+        ivBattery = (ImageView) findViewById(R.id.iv_battery);
         llCtrlPlayer = (LinearLayout) findViewById(R.id.ll_ctrl_player);
-
+        btnVoice = (Button) findViewById(R.id.btn_voice);
+        utils = new Utils();
     }
 
+    /**
+     * 电池电量图标设置
+     */
+    private void setBattey(){
+        if(level<=10){
+            ivBattery.setImageResource(R.drawable.battery_10);
+        }else if(level<=20){
+            ivBattery.setImageResource(R.drawable.battery_20);
+        }else if(level<=50){
+            ivBattery.setImageResource(R.drawable.battery_50);
+        }else if(level<=80){
+            ivBattery.setImageResource(R.drawable.battery_80);
+        }else if(level<=100){
+            ivBattery.setImageResource(R.drawable.battery_100);
+        }
+    }
     private void playSetting() {
         vvPlay.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mp) {
                 ll_loading.setVisibility(View.GONE);
+                isPlaying = true;
+                int duration = (int)vvPlay.getDuration();
 
-                //sbVideo.setMax(duration);
+                tvAllTime.setText(utils.stringForTime(duration));
+                sbVideo.setMax(duration);
                 hideCtrl();
                 handler.sendEmptyMessage(PROGRESS);
             }
         });
     }
 
+    /**
+     * 当从SD卡进来时调用这个方法
+     */
     private void startSDplay() {
         vvPlay.setVideoURI(data);
+
         //vvPlay.setMediaController(new MediaController(this));
         vvPlay.setVideoLayout(VideoView.VIDEO_LAYOUT_STRETCH, 0);
         vvPlay.requestFocus();
+        String path = data.getPath();
+        String[] split =  path.split("/");
+        String s = split[split.length - 1];
+        tvvideoTitle.setText(s);
+        //Toast.makeText(VideoPlayActivity.this, "data==>"+ this.data, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -221,22 +358,48 @@ public class VideoPlayActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState, outPersistentState);
     }
 
+    /**
+     * 从主页面进来调用这个方法
+     */
     private void startPlay() {
         vvPlay.setVideoPath(path);
         vvPlay.setVideoURI(Uri.parse(path));
         //vvPlay.setMediaController(new MediaController(this));
         vvPlay.setVideoLayout(VideoView.VIDEO_LAYOUT_STRETCH, 0);
         vvPlay.requestFocus();
+        String[] split = path.split("/");
+        String s = split[split.length - 1];
+        tvvideoTitle.setText(s);
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         super.onTouchEvent(event);
         detector.onTouchEvent(event);
+        switch (event.getAction()){
+            case MotionEvent.ACTION_MOVE:
+                removeDelayedHideCtrlPlayer();
+                break;
+            case MotionEvent.ACTION_DOWN:
+                break;
+            case MotionEvent.ACTION_UP:
+                sendDelayedHideCtrlPlayer();
+                break;
+        }
         return true;
 
     }
 
+    private void startOrPause(){
+        if(isPlaying){
+            vvPlay.pause();
+            btnPlay.setBackgroundResource(R.drawable.btn_play_selector);
+        }else{
+            vvPlay.start();
+            btnPlay.setBackgroundResource(R.drawable.btn_pause_selector);
+        }
+        isPlaying = !isPlaying;
+    }
     private void removeDelayedHideCtrlPlayer(){
         handler.removeMessages(HIDEPROGRESSCTRL);
     }
@@ -254,8 +417,6 @@ public class VideoPlayActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-
-
     }
 
     @Override
