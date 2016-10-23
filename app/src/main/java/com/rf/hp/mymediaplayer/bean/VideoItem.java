@@ -51,12 +51,6 @@ public class VideoItem implements Serializable{
 		this.data = data;
 	}
 
-	@Override
-	public String toString() {
-		return "VideoItem [title=" + title + ", duration=" + duration
-				+ ", size=" + size + ", data=" + data + "]";
-	}
-
 
 	public void setDisplayName(String displayName) {
 		this.displayName = displayName;
@@ -68,5 +62,17 @@ public class VideoItem implements Serializable{
 
 	public String getPath() {
 		return path;
+	}
+
+	@Override
+	public String toString() {
+		return "VideoItem{" +
+				"title='" + title + '\'' +
+				", duration='" + duration + '\'' +
+				", size=" + size +
+				", data='" + data + '\'' +
+				", displayName='" + displayName + '\'' +
+				", path='" + path + '\'' +
+				'}';
 	}
 }

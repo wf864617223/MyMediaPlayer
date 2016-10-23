@@ -41,31 +41,60 @@
     </LinearLayout>
     <LinearLayout
         android:id="@+id/ll_video_ctrl"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:background="@android:color/black"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
         android:layout_below="@+id/ll_my_title"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="100dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true">
+
+        <com.rf.hp.mymediaplayer.view.VerticalSeekBar
+            android:id="@+id/sb_voice"
+            android:thumb="@mipmap/progress_dot_normal"
+            android:layout_width="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:maxWidth="3dp"
+            android:minWidth="3dp"
+            android:layout_weight="1"
+            android:layout_height="0dp" />
         <Button
             android:id="@+id/btn_voice"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
             android:background="@drawable/btn_voice"
-            android:layout_gravity="center_vertical"
+            android:layout_gravity="center_horizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
-        <SeekBar
-            android:id="@+id/sb_voice"
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/ll_light_ctrl"
+        android:orientation="vertical"
+        android:background="@android:color/black"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignTop="@+id/ll_video_ctrl"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="100dp">
+
+          <com.rf.hp.mymediaplayer.view.VerticalSeekBar
+            android:id="@+id/sb_light"
             android:thumb="@mipmap/progress_dot_normal"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:maxWidth="3dp"
+            android:minWidth="3dp"
             android:layout_weight="1"
+            android:layout_height="0dp" />
+        <Button
+            android:id="@+id/btn_light"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
-            android:layout_gravity="center_vertical"
-            android:maxHeight="3dp"
-            android:minHeight="3dp"
+            android:background="@mipmap/player_brightness_pressed"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
     </LinearLayout>
     <LinearLayout

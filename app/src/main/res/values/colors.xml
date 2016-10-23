@@ -5,4 +5,5 @@
     <color name="colorAccent">#FF4081</color>
     <color name="color_rb_normal">#4891FF</color>
     <color name="color_rb_focus">#2269d5</color>
+    <color name="colorHalfTrans">#b0000000</color>
 </resources>

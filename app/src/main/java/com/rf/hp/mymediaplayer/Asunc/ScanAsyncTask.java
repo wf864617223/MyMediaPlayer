@@ -1,10 +1,12 @@
 package com.rf.hp.mymediaplayer.Asunc;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
 
 import com.rf.hp.mymediaplayer.bean.VideoItem;
+import com.rf.hp.mymediaplayer.view.PrgDialog;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -21,11 +23,21 @@ import io.vov.vitamio.utils.FileUtils;
  */
 public class ScanAsyncTask extends AsyncTask <Void,Integer,ArrayList<VideoItem>>{
     private ArrayList<VideoItem> videoInfos=new ArrayList<VideoItem>();
+   // private PrgDialog prgDialog;
+   // Context context;
+   // private OnTaskListener listener;
 
-
-
+    /*public interface OnTaskListener{
+        void onSuccess();
+        void onFilde();
+    }
+    public ScanAsyncTask(Context context,OnTaskListener onTaskListener){
+        this.context = context;
+        this.listener = onTaskListener;
+    }*/
     @Override
     protected ArrayList<VideoItem> doInBackground(Void... params) {
+
         videoInfos=getVideoFile(videoInfos, Environment.getExternalStorageDirectory());
         videoInfos=filterVideo(videoInfos);
         Log.i("tga","最后的大小"+videoInfos.size());
@@ -36,11 +48,13 @@ public class ScanAsyncTask extends AsyncTask <Void,Integer,ArrayList<VideoItem>>
     @Override
     protected void onProgressUpdate(Integer... values) {
         super.onProgressUpdate(values);
+        //prgDialog = new PrgDialog(context);
     }
 
     @Override
     protected void onPostExecute(ArrayList<VideoItem> videoInfos) {
         super.onPostExecute(videoInfos);
+
     }
 
     /**
